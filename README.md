@@ -9,6 +9,7 @@ Els scripts estan organitzats en carpetes segons la seua funcionalitat.
 
 Historial:
 
-Setmana 1: 21 d'octubre del 2024
+Setmana 1: 21 d'octubre del 2024   "executar_sesio-sh"
+
 
 
