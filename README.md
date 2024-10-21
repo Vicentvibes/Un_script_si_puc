@@ -11,5 +11,6 @@ Historial:
 
 Setmana 1: 21 d'octubre del 2024   "executar_sesio-sh"
 
+Aquest script permet gestionar l'execució d'altres scripts al principi de la sessió (inici del sistema) o al final de la sessió (apagada o reinici del sistema) en un sistema Linux. Proporciona funcionalitats per afegir, esborrar i llistar els scripts configurats. A més, registra totes les accions en un fitxer de logs amb informació sobre l'usuari i el moment en què s'ha realitzat cada acció. També procura que els scripts a executar s'executen amb permisos d'administrador per tal d'evitar problemes.
 
 
