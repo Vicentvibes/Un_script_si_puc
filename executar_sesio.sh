@@ -1,21 +1,24 @@
 #!/bin/bash
 
-# Funció per mostrar l'ajuda
+# Manual
 mostra_ajuda() {
   cat << EOF
 Ús: sudo ./executar_sesio.sh <path_script> <principi|final> [esborrar]
 
 Descripció:
-  Aquest script permet gestionar l'execució d'altres scripts al principi de la sessió (inici del sistema) o al final de la sessió (apagada o reinici del sistema) en un sistema Linux. També es pot utilitzar per llistar els scripts afegits i per esborrar-los.
-
+  Aquest script permet gestionar l'execució d'altres scripts al principi de la sessió (inici del sistema) o al final de la sessió (apagada o reinici del sistema) en un sistema Linux. Proporciona funcionalitats per afegir, esborrar i llistar els scripts configurats. A més, registra totes les accions en un fitxer de logs amb informació sobre l'usuari i el moment en què s'ha realitzat cada acció. També procura que els scripts a executar s'executen amb permisos d'administrador per tal d'evitar problemes.
 Arguments:
-  <path_script>    El camí complet de l'script que vols afegir o esborrar.
+  <path_script>    El camí COMPLET de l'script que es vol afegir o esborrar.
   <principi|final> Indica si l'script ha de ser afegit a l'inici de sessió ("principi") o a l'apagada ("final").
-  [esborrar]       Opcional. Si es proporciona, l'script especificat serà esborrat de la configuració d'inici o apagada.
+  [esborrar]       Opcional. Si es proporciona, l'script especificat serà esborrat de la configuració d'inici final.
 
 Opcions especials:
-  -h, --help       Mostra aquest missatge d'ajuda i surt.
-  llista           Mostra una llista de tots els scripts configurats per executar-se tant a l'inici com a l'apagada.
+  -h, --help       Mostra aquest manual.
+  llista           Mostra una llista de tots els scripts configurats per executar-se tant a l'inici com al final de la sessió.
+
+Requisits:
+  Ha d'executar-se amb permisos d'administrador (root/sudo).
+  Els scripts que es volen afegir han de tenir permisos d'execució.
 
 Exemples:
   1. Afegir un script a l'inici de la sessió:
@@ -65,7 +68,7 @@ log_action() {
   echo "$timestamp - Usuari: $user - $1" >> /var/log/executar_sesio.log
 }
 
-# Si només es proporciona "llista", mostrar els scripts
+# Si l'argument és "llista", mostrar els scripts
 if [ "$1" == "llista" ]; then
   llista_scripts
   exit 0
@@ -73,7 +76,7 @@ fi
 
 # Comprovar que hi ha almenys dos arguments
 if [ "$#" -lt 2 ]; then
-  echo "Ús: $0 <path_script> <principi|final> [esborrar]"
+  echo "Aquest script s'utilitza de la següent forma: $0 <path_script_complet> <principi|final> [esborrar]"
   exit 1
 fi
 
