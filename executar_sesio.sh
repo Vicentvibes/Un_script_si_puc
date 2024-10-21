@@ -1,8 +1,15 @@
 #!/bin/bash
 
+# Comprovar si l'script s'està executant com a root (usuari amb uid 0)
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Aquest script necessita ser executat amb permisos d'administrador (root)."
+  echo "Utilitza 'sudo' o inicia sessió com a root."
+  exit 1
+fi
+
 # Comprovar que hi ha dos arguments
 if [ "$#" -ne 2 ]; then
-  echo " Cal utilitzar aquest script de a següent manera: $0 <path_script> <principi|final>"
+  echo "Ús: $0 <path_script> <principi|final>"
   exit 1
 fi
 
@@ -12,7 +19,13 @@ SESIO=$2
 
 # Comprovar si el path existeix
 if [ ! -f "$SCRIPT_PATH" ]; then
-  echo "Error: L'script $SCRIPT_PATH no existeix o el path és incorrecte."
+  echo "Error: L'script $SCRIPT_PATH no existeix."
+  exit 1
+fi
+
+# Comprovar que l'script és executable
+if [ ! -x "$SCRIPT_PATH" ]; then
+  echo "Error: L'script $SCRIPT_PATH no té permisos d'execució. Estableix-los amb 'chmod +x'."
   exit 1
 fi
 
@@ -20,33 +33,34 @@ fi
 if [ "$SESIO" == "principi" ]; then
   echo "Afegint l'script $SCRIPT_PATH a l'inici de l'arrencada del sistema..."
 
-  # Comprovar si l'script ja està afegit
+  # Afegeix l'script a /etc/rc.local, que s'executa com a root per defecte
   if ! grep -q "$SCRIPT_PATH" /etc/rc.local; then
-    # Afegeix l'script al final de /etc/rc.local abans de l'exit 0
     sudo sed -i "/^exit 0/i $SCRIPT_PATH" /etc/rc.local
-    echo "L'script s'executarà a al arrancar el sistema."
+    echo "L'script s'executarà a l'inici de l'arrencada del sistema com a root."
   else
     echo "L'script ja està configurat per executar-se a l'inici."
   fi
 
-# Opció "final" - Afegir a l'apagat del sistema
+# Opció "final" - Afegir a l'apagada del sistema amb un servei separat per a cada script
 elif [ "$SESIO" == "final" ]; then
   echo "Afegint l'script $SCRIPT_PATH a l'apagada del sistema..."
 
-  # Crear un fitxer de servei systemd per a l'apagada del sistema
-  SERVICE_PATH="/etc/systemd/system/executar_script_apagada.service"
+  # Creem un nom únic per al servei, utilitzant el nom de l'script
+  SERVICE_NAME=$(basename "$SCRIPT_PATH" .sh)_apagada.service
+  SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
   # Crear el fitxer del servei si no existeix
   if [ ! -f "$SERVICE_PATH" ]; then
     sudo bash -c "cat > $SERVICE_PATH" <<EOL
 [Unit]
-Description=Executar script a l'apagada del sistema
+Description=Executar $SCRIPT_PATH a l'apagada del sistema
 DefaultDependencies=no
 Before=shutdown.target
 
 [Service]
 Type=oneshot
 ExecStop=$SCRIPT_PATH
+User=root  #CUIDAO!!! SI EL TEU root NO ÉS "root"!!!!!!!
 RemainAfterExit=true
 
 [Install]
@@ -54,8 +68,8 @@ WantedBy=halt.target shutdown.target reboot.target
 EOL
 
     # Activar el servei
-    sudo systemctl enable executar_script_apagada.service
-    echo "L'script s'executarà a l'apagada del sistema."
+    sudo systemctl enable "$SERVICE_NAME"
+    echo "L'script s'executarà a l'apagada del sistema com a root."
   else
     echo "L'script ja està configurat per executar-se a l'apagada."
   fi
