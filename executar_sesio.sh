@@ -6,11 +6,12 @@ mostra_ajuda() {
 Ús: sudo ./executar_sesio.sh <path_script> <principi|final> [esborrar]
 
 Descripció:
-  Aquest script permet gestionar l'execució d'altres scripts al principi de la sessió (inici del sistema) o al final de la sessió (apagada o reinici del sistema) en un sistema Linux. Proporciona funcionalitats per afegir, esborrar i llistar els scripts configurats. A més, registra totes les accions en un fitxer de logs amb informació sobre l'usuari i el moment en què s'ha realitzat cada acció. També procura que els scripts a executar s'executen amb permisos d'administrador per tal d'evitar problemes.
+  Aquest script permet gestionar l'execució d'altres scripts al principi de la sessió (inici del sistema) o al final de la sessió (apagada o reinici del sistema) en un sistema Linux. Proporciona funcionalitats per afegir, esborrar i llistar els scripts configurats. A més, registra totes les accions en un fitxer de logs amb informació sobre l'usuari i el moment en què s'ha realitzat cada acció.
+
 Arguments:
   <path_script>    El camí COMPLET de l'script que es vol afegir o esborrar.
   <principi|final> Indica si l'script ha de ser afegit a l'inici de sessió ("principi") o a l'apagada ("final").
-  [esborrar]       Opcional. Si es proporciona, l'script especificat serà esborrat de la configuració d'inici final.
+  [esborrar]       Opcional. Si es proporciona, l'script especificat serà esborrat de la configuració d'inici o final.
 
 Opcions especials:
   -h, --help       Mostra aquest manual.
@@ -19,22 +20,6 @@ Opcions especials:
 Requisits:
   Ha d'executar-se amb permisos d'administrador (root/sudo).
   Els scripts que es volen afegir han de tenir permisos d'execució.
-
-Exemples:
-  1. Afegir un script a l'inici de la sessió:
-     sudo ./executar_sesio.sh /home/usuari/scripts/script1.sh principi
-
-  2. Afegir un script a l'apagada del sistema:
-     sudo ./executar_sesio.sh /home/usuari/scripts/script2.sh final
-
-  3. Esborrar un script de l'inici de sessió:
-     sudo ./executar_sesio.sh /home/usuari/scripts/script1.sh principi esborrar
-
-  4. Esborrar un script de l'apagada del sistema:
-     sudo ./executar_sesio.sh /home/usuari/scripts/script2.sh final esborrar
-
-  5. Llistar tots els scripts configurats:
-     sudo ./executar_sesio.sh llista
 
 EOF
 }
@@ -52,10 +37,10 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-# Funció per llistar els scripts afegits a l'inici i final
+# Funció per llistar els scripts afegits a l'inici i final amb systemd
 llista_scripts() {
-  echo "Scripts programats per a l'inici de sessió (rc.local):"
-  grep -v '^#' /etc/rc.local | grep -v '^exit 0' | grep -v '^$'
+  echo "Scripts programats per a l'inici de sessió (systemd):"
+  ls /etc/systemd/system/*_inici.service 2>/dev/null | sed 's/^.*\/\(.*\)_inici.service/\1/'
   echo
   echo "Scripts programats per a l'apagada del sistema (systemd):"
   ls /etc/systemd/system/*_apagada.service 2>/dev/null | sed 's/^.*\/\(.*\)_apagada.service/\1/'
@@ -101,10 +86,15 @@ fi
 if [ "$OPERACIO" == "esborrar" ]; then
   if [ "$SESIO" == "principi" ]; then
     echo "Esborrant l'script $SCRIPT_PATH de l'inici de sessió..."
-    sudo sed -i "\|$SCRIPT_PATH|d" /etc/rc.local
-    sudo sed -i '/^$/d' /etc/rc.local # Eliminar línies en blanc
-    log_action "Esborrat l'script $SCRIPT_PATH de l'inici de sessió."
-    echo "Script esborrat de l'inici de sessió."
+    SERVICE_NAME=$(basename "$SCRIPT_PATH" .sh)_inici.service
+    if sudo systemctl disable "$SERVICE_NAME" --now; then
+      sudo rm "/etc/systemd/system/$SERVICE_NAME"
+      log_action "Esborrat l'script $SCRIPT_PATH de l'inici de sessió."
+      echo "Script esborrat de l'inici de sessió."
+    else
+      echo "Hi ha hagut un problema en desactivar el servei."
+      exit 1
+    fi
 
   elif [ "$SESIO" == "final" ]; then
     echo "Esborrant l'script $SCRIPT_PATH de l'apagada del sistema..."
@@ -124,25 +114,48 @@ if [ "$OPERACIO" == "esborrar" ]; then
   exit 0
 fi
 
-# Opció "principi" - Afegir a l'inici de l'arrencada del sistema
+# Afegir l'script a l'inici o a l'apagada del sistema utilitzant systemd
+
 if [ "$SESIO" == "principi" ]; then
   echo "Afegint l'script $SCRIPT_PATH a l'inici de l'arrencada del sistema..."
 
-  # Afegeix l'script a /etc/rc.local, que s'executa com a root per defecte
-  if ! grep -q "$SCRIPT_PATH" /etc/rc.local; then
-    echo "# Script afegit automàticament el $(date)" | sudo tee -a /etc/rc.local
-    sudo sed -i "/^exit 0/i $SCRIPT_PATH" /etc/rc.local
-    log_action "Afegit l'script $SCRIPT_PATH a l'inici de sessió."
-    echo "L'script s'executarà a l'inici de l'arrencada del sistema com a root."
+  SERVICE_NAME=$(basename "$SCRIPT_PATH" .sh)_inici.service
+  SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
+
+  # Crear el fitxer del servei si no existeix
+  if [ ! -f "$SERVICE_PATH" ]; then
+    sudo bash -c "cat > $SERVICE_PATH" <<EOL
+[Unit]
+Description=Executar $SCRIPT_PATH a l'inici del sistema
+DefaultDependencies=no
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=$SCRIPT_PATH
+User=root
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+    # Activar el servei amb comprovació d'errors
+    if sudo systemctl enable "$SERVICE_NAME"; then
+      log_action "Afegit l'script $SCRIPT_PATH a l'inici del sistema."
+      echo "L'script s'executarà a l'inici del sistema com a root."
+    else
+      echo "Hi ha hagut un problema en activar el servei."
+      log_action "Error en activar l'script $SCRIPT_PATH a l'inici del sistema."
+      exit 1
+    fi
   else
     echo "L'script ja està configurat per executar-se a l'inici."
   fi
 
-# Opció "final" - Afegir a l'apagada del sistema amb un servei separat per a cada script
 elif [ "$SESIO" == "final" ]; then
   echo "Afegint l'script $SCRIPT_PATH a l'apagada del sistema..."
 
-  # Creem un nom únic per al servei, utilitzant el nom de l'script
   SERVICE_NAME=$(basename "$SCRIPT_PATH" .sh)_apagada.service
   SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
