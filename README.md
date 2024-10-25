@@ -1,4 +1,4 @@
-# Un_script_setmana
+# Un_script_si_puc
 
 ## Descripció:
 
