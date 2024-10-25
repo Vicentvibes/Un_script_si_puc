@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables globals
-BACKUP_DIR="$HOME/backups/baseline"
+BACKUP_DIR="$HOME/backups/baseline" #CUIDAO!!! Els baseline NO es guarden en una carpeta dins de /var/backups, si no en una carpeta dintre de cada usuari. Per tant, pot ser d'interés modificar aquest directori segons l'interés. 
 BASELINE_PREFIX="baseline_sistema"
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
 NEW_BASELINE="${BACKUP_DIR}/${BASELINE_PREFIX}_${TIMESTAMP}.txt"
@@ -10,7 +10,7 @@ TMP_BASELINE="/tmp/${BASELINE_PREFIX}_temp.txt"
 # Funció: Mostra el manual d'ajuda
 show_help() {
     cat << EOF
-Ús: $(basename "$0") [OPCIÓ]
+Ús: sudo ./fer_baseline.sh [OPCIÓ]
 
 Aquest script crea i compara còpies de seguretat ("baselines") de la configuració del sistema i els paquets instal·lats.
 
@@ -26,10 +26,6 @@ Opcions:
   compara_amb        Genera una baseline temporal i ofereix un llistat de baselines disponibles perquè
                      l'usuari seleccioni una. Es fa una comparació amb la baseline seleccionada.
 
-Exemples d'ús:
-  $(basename "$0")                 Crea una nova baseline permanent.
-  $(basename "$0") compara         Compara una baseline temporal amb l'última baseline permanent.
-  $(basename "$0") compara_amb     Compara una baseline temporal amb una baseline específica seleccionada per l'usuari.
 
 Nota: Aquest script requereix privilegis de sudo per accedir a la configuració del sistema.
 EOF
