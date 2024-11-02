@@ -19,3 +19,10 @@ Aquest script permet gestionar l'execució d'altres scripts al principi de la se
 25 d'octubre del 2024    "fer_baseline"
 
 Aquest script crea una còpia de seguretat ("baseline") de la configuració del sistema i dels paquets instal·lats, guardant-la en un fitxer al directori $HOME/backups/baseline. Permet també generar baselines temporals per comparar-les amb versions anteriors, identificant així qualsevol canvi al sistema. Inclou opcions per comparar automàticament amb l'última baseline o seleccionar-ne una d'específica. Requereix privilegis de sudo per accedir a fitxers del sistema.
+
+
+2 de novembre del 2024    "connexio_vpn"
+
+4 dies després de la riuà en l'Horta Sud.
+
+En aquest cas creem un script que estableix una connexió VPN, guardant un registre de les IPs de la vpn utilitzades, netejant arxius de connexions anteriors i comprovant que la IP que s'emprarà és diferent a les últimes 10 del registre. Empra VPNBook. 
