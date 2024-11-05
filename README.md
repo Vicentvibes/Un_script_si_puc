@@ -23,6 +23,7 @@ Aquest script crea una còpia de seguretat ("baseline") de la configuració del 
 
 2 de novembre del 2024    "connexio_vpn"
 
-4 dies després de la riuà en l'Horta Sud.
+4 dies després del "tsunami".
 
-En aquest cas creem un script que estableix una connexió VPN, guardant un registre de les IPs de la vpn utilitzades, netejant arxius de connexions anteriors i comprovant que la IP que s'emprarà és diferent a les últimes 10 del registre. Empra VPNBook. 
+En aquest cas creem un script que estableix una connexió VPN mitjançant VPNBook. L'script neteja arxius de connexions VPN anteriors, descarrega la configuració actualitzada de VPNBook i obté una IP nova, assegurant que no
+  coincidisca amb les últimes 10 IPs utilitzades. Cada connexió es registra en un fitxer de logs per fer seguiment de les IP utilitzades.
