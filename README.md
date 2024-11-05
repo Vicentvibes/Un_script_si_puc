@@ -21,9 +21,7 @@ Aquest script permet gestionar l'execució d'altres scripts al principi de la se
 Aquest script crea una còpia de seguretat ("baseline") de la configuració del sistema i dels paquets instal·lats, guardant-la en un fitxer al directori $HOME/backups/baseline. Permet també generar baselines temporals per comparar-les amb versions anteriors, identificant així qualsevol canvi al sistema. Inclou opcions per comparar automàticament amb l'última baseline o seleccionar-ne una d'específica. Requereix privilegis de sudo per accedir a fitxers del sistema.
 
 
-2 de novembre del 2024    "connexio_vpn"
-
-4 dies després del "tsunami".
+2 de novembre del 2024    "connexio_vpn",  4 dies després del "tsunami".
 
 En aquest cas creem un script que estableix una connexió VPN mitjançant VPNBook. L'script neteja arxius de connexions VPN anteriors, descarrega la configuració actualitzada de VPNBook i obté una IP nova, assegurant que no
   coincidisca amb les últimes 10 IPs utilitzades. Cada connexió es registra en un fitxer de logs per fer seguiment de les IP utilitzades.
