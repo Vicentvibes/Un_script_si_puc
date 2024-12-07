@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: cal guardar encara els arxius de configuració.
+
 # Variables globals
 BACKUP_DIR="$HOME/backups/baseline" #CUIDAO!!! Els baseline NO es guarden en una carpeta dins de /var/backups, si no en una carpeta dintre de cada usuari. Per tant, pot ser d'interés modificar aquest directori segons l'interés. 
 BASELINE_PREFIX="baseline_sistema"
