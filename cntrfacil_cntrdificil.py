@@ -4,6 +4,14 @@ from datetime import datetime, timedelta
 import os
 import json
 
+# TODO: cal testejar
+# TODO: cal crear interficie
+# TODO: cal comprovar funcionament rotacio del hash
+# RECOMANACIO: guardar en paper i boli el historial histori dels inputs ja que si es perd aquest arxiu o es modifica, no es recuperaran les contrasenyes.
+# MILLORA: quan es modifiquen els inputs, enviar-los per correu a alguna direccio mail per conservar-los fora de l'equip local
+# TODO: cal fer el manual
+
+
 # Fitxers per guardar l'estat
 ESTAT_HASH_FILE = "estat_hash.json"
 INPUTS_FILE = "inputs_contrasenya.json"
