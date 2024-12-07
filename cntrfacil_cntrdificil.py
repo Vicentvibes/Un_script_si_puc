@@ -10,7 +10,9 @@ import json
 # RECOMANACIO: guardar en paper i boli el historial histori dels inputs ja que si es perd aquest arxiu o es modifica, no es recuperaran les contrasenyes.
 # MILLORA: quan es modifiquen els inputs, enviar-los per correu a alguna direccio mail per conservar-los fora de l'equip local
 # TODO: cal fer el manual
-
+# TODO: cal oferir als usuaris la possibilitat de "recuperar contrasenya". Algo on els usuaris poden elegir el datetime d'algun dels inputs anteriors
+# i obtindre la nova contrasenya segons els inputs actuals i els inputs del datetime seleccionat. La idea es poder accedir al login i canviar la contrasenya.
+# TODO: cal ficar minim i maxim del valor de n
 
 # Fitxers per guardar l'estat
 ESTAT_HASH_FILE = "estat_hash.json"
