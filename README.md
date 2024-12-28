@@ -27,6 +27,6 @@ En aquest cas creem un script que estableix una connexió VPN mitjançant VPNBoo
 coincidisca amb les últimes 10 IPs utilitzades. Cada connexió es registra en un fitxer de logs per fer seguiment de les IP utilitzades.
 
 
-7 de decembre del 2024     "cntrfacil_cntrdificil", visitant a Nuria en London
+7 de decembre del 2024     "cuinar_contrasenya", visitant a Nuria en London
 
 L'objectiu es crear un programa amb interficie que, a partir de contrasenyes constants i simples, oferisca els usuaris contrasenyes complexes. El proces consisteix en introduir uns inputs (mida de la cntr final, paraula per decidir caracters especials i paraula per saltejar la cntr final), els quals condicionaran la nostra contrasenya final. La contrasenya base (la simple, la facil, la que els usuaris recorden i pot ser tan simple com "vicent email" o "vicent facebook"), s'introdueix, se li aplica una funcio hash, al hash resultant se li codifica en base64 i aquesta protocontrasenya en base64 se li aplica les condicions dels inputs. El resultat final es una cntrasenya aparentment sense sentit, amb caracters especials i saltejada que els usuaris poden copiar i pegar en els seus logins. Cada 3 mesos se li oferira als usuaris canviar la contrasenya renovant els inputs, quan es renoven els inputs el hash utilitzat rota (sha1, sha256 o sha512). 
